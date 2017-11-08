@@ -5,7 +5,8 @@
     message:  document.querySelector('input[type=text]'),
     reset:    () => (ui.message.value = "") || ui.message.focus(),
   };
-  var socket = new WebSocket("ws://localhost:9090/socket");
+  var url = new URL(location.href);
+  var socket = new WebSocket(`ws://${url.host}/socket`);
   socket.onopen = e => socket.send(JSON.stringify({text:"Joined!", type:"GREET"}));
   socket.onmessage = e => {
     const payload = JSON.parse(e.data);

@@ -16,6 +16,7 @@ import (
 	"golang.org/x/net/websocket"
 
 	"github.com/otiai10/marmoset"
+	"github.com/otiai10/ternary"
 )
 
 // The list of participants.
@@ -36,7 +37,10 @@ func main() {
 	// Static files handler
 	r.Static("/public", "./")
 
-	http.ListenAndServe(":9090", r)
+	port := ternary.Default("9090").String(os.Getenv("PORT"))
+	log.Println("Listening on port:", port)
+
+	http.ListenAndServe(":"+port, r)
 }
 
 func top(w http.ResponseWriter, r *http.Request) {
