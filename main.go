@@ -1,5 +1,7 @@
 package main
 
+//go:generate tplize --out templated.go index.html
+
 import (
 	"container/list"
 	"encoding/json"
@@ -38,15 +40,8 @@ func main() {
 }
 
 func top(w http.ResponseWriter, r *http.Request) {
-	// FIXME: It's not good to open files for each request :p
-	f, err := os.Open("index.html")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer f.Close()
 	w.Header().Add("Content-Type", "text/html")
-	io.Copy(w, f)
+	w.Write([]byte(Tpl["index.html"]))
 }
 
 func socket(conn *websocket.Conn) {
