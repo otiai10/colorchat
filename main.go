@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -23,12 +24,20 @@ import (
 // FIXME: It's not necessary to be list.List, but it's easy for now :p
 var participants = list.List{}
 
+// Event represents an event from server side published.
+type Event struct {
+	Type string `json:"type"`
+	Text string `json:"text"`
+	User string `json:"user"`
+}
+
 func main() {
 
 	r := marmoset.NewRouter()
 
 	// Basic http endpoints handler
 	r.GET("/", top)
+	r.POST("/message", message)
 
 	// ws:// Request handler
 	s := &websocket.Server{Handler: socket}
@@ -46,6 +55,17 @@ func main() {
 func top(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html")
 	w.Write([]byte(Tpl["index.html"]))
+}
+
+func message(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	// FIXME: Error handling
+	b, _ := ioutil.ReadAll(r.Body)
+	for e := participants.Front(); e != nil; e = e.Next() {
+		// FIXME: Type assertion validation :p
+		// FIXME: Error handling on Write :p
+		e.Value.(*websocket.Conn).Write(b)
+	}
 }
 
 func socket(conn *websocket.Conn) {
@@ -71,16 +91,9 @@ func socket(conn *websocket.Conn) {
 		Type string
 	}{}
 
-	// Struct for encoding message from server side
-	event := struct {
-		Text string `json:"text"`
-		User string `json:"user"`
-	}{}
-
 	// {{{ FIXME: Tell who this request user is.
-	event.Text = "yourself"
-	event.User = id
-	b, _ := json.Marshal(event)
+	ev := &Event{Type: "CONNECT", Text: "yourself", User: id}
+	b, _ := json.Marshal(ev)
 	conn.Write(b)
 	// }}}
 
@@ -100,15 +113,18 @@ func socket(conn *websocket.Conn) {
 		case "KEEPALIVE":
 			// do nothing
 		default:
-			event.Text = msg.Text
-			event.User = id
-			b, _ := json.Marshal(event)
-			// Publish to all participants.
-			for e := participants.Front(); e != nil; e = e.Next() {
-				// FIXME: Type assertion validation :p
-				// FIXME: Error handling on Write :p
-				e.Value.(*websocket.Conn).Write(b)
-			}
+			// event := &Event{
+			// 	Type: "MESSAGE",
+			// 	Text: msg.Text,
+			// 	User: id,
+			// }
+			// b, _ := json.Marshal(event)
+			// // Publish to all participants.
+			// for e := participants.Front(); e != nil; e = e.Next() {
+			// 	// FIXME: Type assertion validation :p
+			// 	// FIXME: Error handling on Write :p
+			// 	e.Value.(*websocket.Conn).Write(b)
+			// }
 			// FIXME: It's better to make some func to separate this common process :p
 		}
 
