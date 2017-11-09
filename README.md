@@ -10,3 +10,15 @@ as a very simple example of chat application written in Go.
 % go get -u github.com/otiai10/colorchat/...
 % colorchat
 ```
+
+# Deploy to Heroku
+
+It's just an example of `golang.org/x/net/websocket` package, so it's not expected to be deployed and used widely. Nevertheless, if you want to deploy your own, hit following commands
+
+```sh
+# heroku login #(if needed)
+% heroku create
+# heroku container:login #(if needed)
+% heroku container push
+# heroku open
+```
