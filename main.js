@@ -7,7 +7,7 @@
     escape:   raw => raw.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"),
   };
   var url = new URL(location.href);
-  var socket = new WebSocket(`ws://${url.host}/socket`);
+  var socket = new WebSocket(`${url.protocol.replace("http", "ws")}//${url.host}/socket`);
   socket.onopen = e => socket.send(JSON.stringify({text:"Joined!", type:"GREET"}));
   socket.onmessage = e => {
     const payload = JSON.parse(e.data);
