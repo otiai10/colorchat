@@ -14,6 +14,7 @@
     if (payload.text == "yourself") return (ui.submit.style.backgroundColor = payload.user) && (ui.submit.style.borderColor = payload.user);
     ui.timeline.innerHTML = `<li style="color:${payload.user}">[${payload.user}] ${ui.escape(payload.text)}</li>` + ui.timeline.innerHTML;
   };
+  setInterval(() => socket.send(JSON.stringify({type:"KEEPALIVE"})), 50*1000); // https://devcenter.heroku.com/articles/error-codes#h15-idle-connection
 
   const send = () => (ui.message.value.length == 0) ? null : (socket.send(JSON.stringify({text:ui.message.value})) || ui.reset());
   ui.submit.addEventListener('click', send);

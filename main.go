@@ -97,6 +97,8 @@ func socket(conn *websocket.Conn) {
 		}
 
 		switch msg.Type {
+		case "KEEPALIVE":
+			// do nothing
 		default:
 			event.Text = msg.Text
 			event.User = id
