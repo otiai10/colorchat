@@ -46,7 +46,7 @@ func main() {
 	// Static files handler
 	r.Static("/public", "./")
 
-	port := ternary.Default("9090").String(os.Getenv("PORT"))
+	port := ternary.If(os.Getenv("PORT") != "").String(os.Getenv("PORT"), "9090")
 	log.Println("Listening on port:", port)
 
 	http.ListenAndServe(":"+port, r)
